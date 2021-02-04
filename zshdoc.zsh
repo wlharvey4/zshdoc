@@ -15,32 +15,32 @@
 #####################################################################
 
 PREFIX="/opt/local/share"
+PREFIX_OLD="/usr/share"
 BIN=$DEV/bin
 
 #####################################################################
 # ERROR CHECKING
 
 [[ $1 == "lns" ]] && {
-    ln -v -s $PWD/zshdoc.zsh ${BIN}/zshdoc
+    ln -vfs $PWD/zshdoc.zsh ${BIN}/zshdoc
 }
 
 [[ -d "${PREFIX}" ]] || {
     echo "'${PREFIX}' does not exist."
-    exit 1
+    echo "Changing to old prefix: ${PREFIX_OLD}"
+    PREFIX="${PREFIX_OLD}"
 }
-[[ -f "${PREFIX}/zsh" ]] || {
+[[ -d "${PREFIX}/zsh" ]] || {
    echo "'${PREFIX}/zsh' does not exist."
-   echo "Changing to /usr/share"
-   PREFIX="/usr/share"
+   exit 1
 }
-which zsh || exit 1
+which zsh || exit 1 2> /dev/null
 
 [[ -f ${BIN}/zshdoc ]] || {
     echo "'zshdoc' does not exist in ${BIN}"
     echo "Execute the command 'ln -s $PWD/zshdoc.zsh ${BIN}/zshdoc'"
     echo "Easier is: 'ln -s \$PWD/zshdoc.zsh \$DEV/bin/zshdoc'"
     echo "Even easier is './zshdoc.zsh lns'"
-    exit 1
 }
 #####################################################################
 # FUNCTIONS
