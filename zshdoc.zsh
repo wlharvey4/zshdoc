@@ -4,18 +4,50 @@
 # PROGRAM: zshdoc
 # AUTHOR:  wlh4
 # ORIGIN:  2021-02-02
-# VERSION: v1.0 2021-02-02
+# VERSION: v1.1 2021-02-03; added some error checking and prefix
+#	   building
 # USAGE:   $ zshdoc ==> pick a type of zsh documentation
+#          $ zshdoc.zsh lns ==> add symbolic link to $DEV/bin
 # COMMENTS:
-# - this is designed to work with MacPorts version of zsh
-# - change 'prefix' to work with your system
+# - This is designed to work with MacPorts version of zsh.
+# - Change 'PREFIX' to work with your system
+# - Change 'BIN' to the executable directory of your choice
 #####################################################################
 
-prefix="/opt/local/share"
+PREFIX="/opt/local/share"
+BIN=$DEV/bin
+
+#####################################################################
+# ERROR CHECKING
+
+[[ $1 == "lns" ]] && {
+    ln -v -s $PWD/zshdoc.zsh ${BIN}/zshdoc
+}
+
+[[ -d "${PREFIX}" ]] || {
+    echo "'${PREFIX}' does not exist."
+    exit 1
+}
+[[ -f "${PREFIX}/zsh" ]] || {
+   echo "'${PREFIX}/zsh' does not exist."
+   echo "Changing to /usr/share"
+   PREFIX="/usr/share"
+}
+which zsh || exit 1
+
+[[ -f ${BIN}/zshdoc ]] || {
+    echo "'zshdoc' does not exist in ${BIN}"
+    echo "Execute the command 'ln -s $PWD/zshdoc.zsh ${BIN}/zshdoc'"
+    echo "Easier is: 'ln -s \$PWD/zshdoc.zsh \$DEV/bin/zshdoc'"
+    echo "Even easier is './zshdoc.zsh lns'"
+    exit 1
+}
+#####################################################################
+# FUNCTIONS
 
 mantypes () {
     echo "\nPick a man type:"
-    mantypedir="${prefix}/man/man1"
+    mantypedir="${PREFIX}/man/man1"
     local n=0
     for mantype in $(ls -1 $mantypedir/zsh*)
     do
@@ -37,6 +69,8 @@ zshtypes () {
 	printf "%20s---%s\n" "$type" "$($type --version)"
     done
 }
+#####################################################################
+# CODE
 
 echo "Choose one:"
 n=0
@@ -50,9 +84,9 @@ read -sk
   case $REPLY in
     0) zshtypes ;;
     1) mantypes ;;
-    2) info "${prefix}/info/zsh.info" ;;
-    3) open "${prefix}/doc/zsh/pdf/zsh.pdf" ;;
-    4) open "${prefix}/doc/zsh/html/index.html" ;;
+    2) info "${PREFIX}/info/zsh.info" ;;
+    3) open "${PREFIX}/doc/zsh/pdf/zsh.pdf" ;;
+    4) open "${PREFIX}/doc/zsh/html/index.html" ;;
     5) open "http://zsh.sourceforge.net" ;;
     6) open "http://zsh.sourceforge.net/Intro/intro_toc.html" ;;
     7) open "https://www.zsh.org" ;;
@@ -60,3 +94,4 @@ read -sk
     9) open "https://ohmyz.sh" ;;
   esac
 }
+#####################################################################
